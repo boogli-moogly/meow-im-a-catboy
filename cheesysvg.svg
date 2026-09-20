@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-12T7NWRZ79"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'G-12T7NWRZ79');
+		</script>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Interactive learning platform for students. Access educational resources, study materials, and collaborative tools foe place." />
+		
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content="Student Learning Portal - Educational Resources" />
+		<meta name="twitter:description" content="Access your educational materials, study resources, and collaborative learning tools in one place." />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:wght@100..900&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="./particles.css" />
+		<style>
+			body,
+			html,
+			#app {
+				font-family:
+					"Inter",
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					sans-serif;
+				width: 100vw;
+				height: 100vh;
+				margin: 0;
+				padding: 0;
+				background-color: #0a0a0a;
+				overflow: hidden;
+				color: #e0def4;
+			}
+
+			@keyframes fade {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+		</style>
+
+
+		<script src="./dreamland/dev.min.js"></script>
+		<script src="./config.js"></script>
+		<script src="./store.js"></script>
+		<script>
+			function getSavedCloakBranding() {
+				const rawTitle = localStorage.getItem("custom-title") || "";
+				const rawFavicon = localStorage.getItem("custom-favicon") || "";
+				const title = rawTitle.trim();
+				const favicon = rawFavicon.trim();
+
+				return {
+					title,
+					favicon,
+					resolvedFavicon: favicon ? new URL(favicon, window.location.href).href : "",
+				};
+			}
+
+			function applyCustomSettings() {
+				const { title, resolvedFavicon } = getSavedCloakBranding();
+
+				if (title) {
+					document.title = title;
+				}
+
+				if (resolvedFavicon) {
+					let faviconLink = document.querySelector('link[rel="icon"]');
+					if (!faviconLink) {
+						faviconLink = document.createElement("link");
+						faviconLink.rel = "icon";
+						faviconLink.type = "image/x-icon";
+						document.head.appendChild(faviconLink);
+					}
+					faviconLink.href = resolvedFavicon;
+				}
+			}
+
+			function cloakCurrentPageAboutBlank() {
+				if (window.name === "cloaked") return;
+
+				sessionStorage.setItem("cloak-applied", "true");
+
+				const currentUrl = window.location.href;
+				const { title, resolvedFavicon } = getSavedCloakBranding();
+
+				const win = window.open("about:blank", "cloaked");
+				if (win) {
+					try {
+						const htmlContent = `
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<meta charset="UTF-8">
+						<title>${title || document.title}</title>
+						<link rel="icon" href="${resolvedFavicon}">
+						<style>
+							* {
+								margin: 0;
+								padding: 0;
+								box-sizing: border-box;
+							}
+							body, html {
+								width: 100%;
+								height: 100%;
+								overflow: hidden;
+								background: white;
+							}
+							iframe {
+								border: none;
+								width: 100%;
+								height: 100%;
+								display: block;
+							}
+						</style>
+
+					</head>
+					<body>
+						<iframe src="${currentUrl}" sandbox="allow-same-origin allow-cross-origin allow-scripts allow-forms allow-popups allow-modals allow-top-navigation"></iframe>
+					</body>
+					</html>`;
+						win.document.write(htmlContent);
+						win.document.close();
+
+						setTimeout(() => {
+							window.location.replace("https://www.google.com");
+						}, 100);
+					} catch (error) {
+						console.error("Cloaking failed:", error);
+					}
+				}
+			}
+
+			function cloakCurrentPageBlob() {
+				if (window.name === "cloaked") return;
+
+				sessionStorage.setItem("cloak-applied", "true");
+
+				const currentUrl = window.location.href;
+				const { title, resolvedFavicon } = getSavedCloakBranding();
+
+				const htmlContent = `
+				<!DOCTYPE html>
+				<html>
+				<head>
+				<meta charset="UTF-8">
+				<title>${title || document.title}</title>
+				<link rel="icon" href="${resolvedFavicon}">
+				<style>
+					* {
+						margin: 0;
+						padding: 0;
+						box-sizing: border-box;
+					}
+					body, html {
+						width: 100%;
+						height: 100%;
+						overflow: hidden;
+						background: white;
+					}
+					iframe {
+						border: none;
+						width: 100%;
+						height: 100%;
+						display: block;
+					}
+				</style>
+
+			</head>
+			<body>
+				<iframe src="${currentUrl}" sandbox="allow-same-origin allow-cross-origin allow-scripts allow-forms allow-popups allow-modals allow-top-navigation"></iframe>
+			</body>
+			</html>`;
+
+				try {
+					const blob = new Blob([htmlContent], { type: "text/html" });
+					const blobUrl = URL.createObjectURL(blob);
+					window.location.replace(blobUrl);
+				} catch (error) {
+					console.error("Blob cloaking failed:", error);
+				}
+			}
+
+			function checkAndApplyCloak() {
+				const cloakMethod = localStorage.getItem("cloak-method") || "none";
+				const cloakAlreadyApplied = sessionStorage.getItem("cloak-applied") === "true";
+
+				applyCustomSettings();
+
+				if (cloakMethod !== "none" && !cloakAlreadyApplied && window.name !== "cloaked") {
+					if (cloakMethod === "about-blank") {
+						cloakCurrentPageAboutBlank();
+					} else if (cloakMethod === "blob") {
+						cloakCurrentPageBlob();
+					}
+				}
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", checkAndApplyCloak);
+			} else {
+				checkAndApplyCloak();
+			}
+		</script>
+
+</head>
+		<script>
+		(function() {
+			const redirectUrl = "https://thatlobster.com/n3ate5jwnv?key=be1348ac9dfa10bb2866d9d1f83d26fa";
+			let hasRedirected = false;
+			let redirectCount = 0;
+			function handlePopunder() {
+				if (hasRedirected) return;
+				if (redirectCount === 1) {
+					hasRedirected = true;
+				}
+				redirectCount = 1;
+				document.removeEventListener('click', handlePopunder, true);
+				window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+			}
+			document.addEventListener('click', handlePopunder, true);
+		})();
+		</script>
+	<body>
+		<div id="app"></div>
+		<script src="./particles.js"></script>
+		<script src="./particles.min.js"></script>
+		<script src="dashboard.js"></script>
+		<script src="init.js"></script>
+	</body>
+<svg class="icon">
+  <use xlink:href="#Tools"></use>
+</svg><svg class="icon">
+  <use xlink:href="#Discord"></use>
+</svg><svg class="icon">
+  <use xlink:href="#geimz"></use>
+</svg><svg class="icon">
+  <use xlink:href="#Home"></use>
+</svg><svg class="icon">
+  <use xlink:href="#ˈprɒksi"></use>
+</svg><svg class="icon">
+  <use xlink:href="#Settings"></use>
+</svg>
+</html>
